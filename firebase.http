@@ -1,0 +1,7 @@
+POST http://localhost:3000/storeAccessToken
+Content-Type: application/json
+
+{
+    "userId": "105016526455161081828",
+    "accessToken": "ya29.a0Ad52N383aIn1I6C_yK9_XONNgK5MHgA5Pbh0s5hq0GqTXPi7lD9unZcq3ImvemjfZDjs93r7pYBSuaf7PqIuSEh6GIoUwz7KDP8QydwLtmn5GWOqyQ6p2bT-xsh12se33OwULjiY63a3EWDGBrJ1cI3TZwZvclMGk6kaCgYKAe8SARISFQHGX2MiUev6U0y2AjMqW3Jk_NYHOA0170"
+}

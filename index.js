@@ -64,6 +64,26 @@ app.post('/addTask', async (req, res) => {
     }
 })
 
+app.get('/fetchTasks', async (req, res) => {
+    const {accessToken} = req.body
+
+    try{
+        const taskCollection = await connectToMongo('tasks')
+        const user = await taskCollection.findOne({accessToken});
+
+        if(user) {
+            res.status(200).json(user.tasks)
+        }
+        else {
+            res.status(404).json({message: 'No tasks found for this accessToken'})
+        }
+    }
+    catch (error) {
+        console.log("Error fetching tasks:", error)
+        res.status(400).json({message: 'Error fetching tasks'})
+    }
+})
+
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`)
 })

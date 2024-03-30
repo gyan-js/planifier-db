@@ -32,8 +32,8 @@ app.post('/storeAccessToken', async (req, res) => {
     const { accessToken } = req.body;
 
     try {
-      const usersCollection = await connectToMongo('tokens');
-       await usersCollection.updateOne(
+      const tokenCollection = await connectToMongo('tokens');
+       await tokenCollection.updateOne(
         { accessToken },
         { $set: { accessToken } },
         { upsert: true } // Create user document if it doesn't exist
@@ -46,24 +46,22 @@ app.post('/storeAccessToken', async (req, res) => {
 });
 
 
-app.post('/addTask', (req, res) => {
-    /**const { accessToken, taskName, description, startTime, endTime } = req.body;y
+app.post('/addTask', async (req, res) => {
+    const { accessToken, taskName, description, startTime, endTime, userName } = req.body;
 
-    admin.auth().verifyIdToken(accessToken)
-    .then((decodedToken) => {
-        const userId = decodedToken.uid
-
-        const taskRef = admin.database().ref(`tasks/${userId}`)
-        const newTaskRef = taskRef.push();
-
-        newTaskRef.set({taskName, taskDescription, startTime, endTime})
-        .then(() => res.status(200).send("Task added to DB"))
-        .catch((error) => res.status(500).send("Error in adding tasks to DB"))
-    })
-    .catch((error) => {
-        console.log("Error verifying access token:", error)
-        res.status(401).send("Unauthorized access")
-    })**/
+    try{
+        const usersCollection = await connectToMongo('tasks')
+        await usersCollection.updateOne(
+            {accessToken},
+            {$push: {tasks: {taskName, description, startTime, endTime, userName}}},
+            {upsert: true}
+        );
+        res.status(200).json({message: 'Task Added to DB'})
+    } 
+    catch(error) {
+        console.log('Error adding task:', error)
+        res.status(400).json({message: 'Error adding task'})
+    }
 })
 
 app.listen(PORT, () => {

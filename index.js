@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
 const taskRoute = require('./routes/tasks') 
-
+const userRoute = require('./routes/users')
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/tasks', taskRoute)
+app.use('/api/users', userRoute)
 
 app.listen(PORT, () => {
     console.log(`Server is running on ${PORT}`)

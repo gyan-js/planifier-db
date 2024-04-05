@@ -1,10 +1,11 @@
-serviceAcc.json
-serviceAccount.json
+
 findtasks.http
 task.http
 tokens.http
 node_modules/
 
+.env
 
 
 .vercel
+

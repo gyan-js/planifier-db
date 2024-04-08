@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { MongoClient } = require('mongodb');
+const { google } = require('googleapis');
 
 const mongoUri = 'mongodb+srv://sweetdeviljs05:itzezy2prog@cluster0.6rmup.mongodb.net/'
 const dbName = 'planifier'
@@ -17,7 +18,7 @@ const validateBoolean = (value) => {
 
 
 router.post('/addTask', async (req, res) => {
-    const { accessToken, 
+    const { userId, 
         taskName, 
         taskDescrption,
         taskDate,
@@ -35,7 +36,7 @@ router.post('/addTask', async (req, res) => {
             try{
                 const usersCollection = await connectToMongo('tasks')
                 await usersCollection.updateOne(
-                    {accessToken},
+                    {userId},
                     {$push: {tasks: {taskName, taskDescrption, taskDate, startTime, endTime, isAlarm, isImportant, userName}}},
                     {upsert: true}
                 );
@@ -49,11 +50,11 @@ router.post('/addTask', async (req, res) => {
 })
 
 router.get('/fetchTasks', async (req, res) => {
-    const {accessToken} = req.body
+    const {userId} = req.body
 
     try{
         const taskCollection = await connectToMongo('tasks')
-        const user = await taskCollection.findOne({accessToken});
+        const user = await taskCollection.findOne({userId});
 
         if(user) {
             res.status(200).json(user.tasks)
@@ -69,11 +70,11 @@ router.get('/fetchTasks', async (req, res) => {
 })
 
 router.get('/fetchTasksByDate', async (req, res) => {
-    const {accessToken, taskDate} = req.body
+    const {userId, taskDate} = req.body
 
     try{
         const taskCollection = await connectToMongo('tasks')
-        const user = await taskCollection.findOne({accessToken});
+        const user = await taskCollection.findOne({userId});
 
         if(user) {
             const taskWithSameDate = user.tasks.filter(task => task.taskDate === taskDate)
@@ -94,4 +95,43 @@ router.get('/fetchTasksByDate', async (req, res) => {
     }
 })
 
+router.get('/fetchGoogleTasks', async (req, res) => {
+
+    try{
+        const {accessToken} = req.body;
+
+        const oauth2Client = new google.auth.OAuth2();
+        
+        oauth2Client.setCredentials({access_token: accessToken})
+    
+        const calendar = google.calendar({version: 'v3', auth: oauth2Client})
+    
+        const response = await calendar.events.list({
+            calendarId: 'primary',
+            timeMin: new Date().toISOString(),
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: 'startTime'
+        })
+    
+        const tasks = response.data.items.map(event => {
+            return{
+                id: event.id,
+                summary: event.summary,
+                start: event.start.dateTime || event.start.date,
+                end: event.end.dateTime || event.end.date,
+            }
+        })
+    
+        res.json({tasks})
+    }
+    catch(error) {
+        console.log("Error fetching tasks:", error)
+        res.status(404).json({message: 'Error fetching tasks'})
+    }
+   
+})
+
 module.exports = router
+
+//ya29.a0Ad52N3_Lz3fqss-zXO-TH1gYI5RvawmJAu7ih-pgyBVJrgZjcRlPz2FCykjbG27PlwbXHh5N4Z73N2-6ndoaa5ko1Q1Gu1WdBINUBZDitefBxXds0GFiqysS_jTHuwc2GZD8465RWyGkKHju_x1cVrE_23YG1Fpn9AaCgYKAa0SARISFQHGX2MiYvgCN9qu61hNccHIPy0gCg0169

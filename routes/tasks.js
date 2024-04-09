@@ -50,7 +50,7 @@ router.post('/addTask', async (req, res) => {
 })
 
 router.get('/fetchTasks', async (req, res) => {
-    const {userId} = req.body
+    const {userId} = req.query
 
     try{
         const taskCollection = await connectToMongo('tasks')
